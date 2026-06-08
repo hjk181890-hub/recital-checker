@@ -4,7 +4,7 @@ async function handler(req, res) {
   }
 
   const { typeLabel, fileName, pdfBase64 } = req.body;
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
 
   if (!apiKey) {
     return res.status(500).json({ error: 'API 키가 설정되지 않았습니다.' });
@@ -34,48 +34,31 @@ async function handler(req, res) {
   const userText = `리사이틀 종류: ${typeLabel}\nPDF 파일명: ${fileName}\n\n위 PDF를 가이드라인에 따라 검수하고 JSON으로만 응답하세요. PDF 페이지 수도 확인하세요.`;
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [{
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        system: SYSTEM_PROMPT,
+        messages: [
+          {
             role: 'user',
-            parts: [
-              { inline_data: { mime_type: 'application/pdf', data: pdfBase64 } },
-              { text: userText }
+            content: [
+              {
+                type: 'document',
+                source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 }
+              },
+              { type: 'text', text: userText }
             ]
-          }],
-          generationConfig: {
-            responseMimeType: 'application/json',
-            maxOutputTokens: 4000
-          }
-        })
-      }
-    );
+          },
+          { role: 'assistant', content: '{' }
+        ]
+      })
+    });
 
-    const data = await response.json();
-
-    if (data.error) {
-      return res.status(500).json({ error: data.error.message || 'Gemini API 오류' });
-    }
-
-    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    let parsed;
-    try {
-      const clean = raw.replace(/```json|```/g, '').trim();
-      parsed = JSON.parse(clean);
-    } catch(e) {
-      return res.status(500).json({ error: '파싱오류: ' + raw.substring(0, 200) });
-    }
-
-    return res.status(200).json(parsed);
-
-  } catch(err) {
-    return res.status(500).json({ error: err.message });
-  }
-}
-
-module.exports = handler;
+    const
