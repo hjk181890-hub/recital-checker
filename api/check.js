@@ -36,8 +36,8 @@ async function handler(req, res) {
 - Bach: BWV, Handel: HWV, Mozart: K., Schubert: D., Haydn: Hob., Vivaldi: RV 명시
 
 5. 아리아 표기
-- 제목 큰따옴표(" ") 사용
-- 레치타티보+아리아 병기 시 … (앞뒤 공백 포함) 사용
+- 제목 큰따옴표 사용
+- 레치타티보+아리아 병기 시 ... (앞뒤 공백 포함) 사용
 - from 오페라명 표기 필수
 
 6. 연가곡 표기
@@ -46,7 +46,6 @@ async function handler(req, res) {
 - 전곡: 작품명 아래 전곡 나열
 - 독일어권: Nr. / 프랑스·이탈리아·영어권: No.
 - 악보상 원래 번호 병기 필수
-
 7. 언어별 대문자화
 - 독일어: 첫 단어 + 모든 명사 대문자
 - 이탈리아어: 첫 단어만 대문자
@@ -59,24 +58,24 @@ async function handler(req, res) {
 - 총 연주시간 합산 표기 필수
 
 9. 리사이틀 종류별 조건
-- 표준(45–50분): 총 연주시간 45분 이상 50분 미만
+- 표준(45-50분): 총 연주시간 45분 이상 50분 미만
 - 박사 1학기(30분 미만): 총 연주시간 30분 미만, 3시대·3언어·연가곡 필수
-- 렉쳐: Lecture Recital 표기, 해설부/공연부 분리, 연주 30분 미만, 해설+연주 합산 45–50분, 단일 작곡가 권장
+- 렉쳐: Lecture Recital 표기, 해설부/공연부 분리, 연주 30분 미만, 해설+연주 합산 45-50분, 단일 작곡가 권장
 
 10. 과정 표기 문구
-- 석사: "본 연주는 국립창원대학교 일반대학원 석사과정 이수를 위한 필수 연주 과정입니다. / This recital is a required concert in fulfillment part of MM program."
-- 박사: "본 연주는 국립창원대학교 일반대학원 박사과정 이수를 위한 필수 연주 과정입니다. / This recital is a required concert in fulfillment part of DMA program."
+- 석사: 본 연주는 국립창원대학교 일반대학원 석사과정 이수를 위한 필수 연주 과정입니다. This recital is a required concert in fulfillment part of MM program.
+- 박사: 본 연주는 국립창원대학교 일반대학원 박사과정 이수를 위한 필수 연주 과정입니다. This recital is a required concert in fulfillment part of DMA program.
 
 11. 프로그램 마지막 곡
 - 관례상 아리아로 마무리
 
 12. 페이지 수
 - 프로그램은 반드시 1페이지 이내여야 함
-- PDF 페이지가 2장 이상이면 오류 (글자 크기·간격 조정 필요)
+- PDF 페이지가 2장 이상이면 오류
 
 13. 글꼴 수정 금지
 - 가이드 파일로 제시된 글꼴을 임의로 변경하면 안 됨
-- PDF에서 폰트 정보 확인이 어려우므로 항상 ⚠️ 주의 안내로 표시
+- PDF에서 폰트 정보 확인이 어려우므로 항상 주의 안내로 표시
 
 14. 파일명 형식
 - 형식: [과정] [이름] [연도-학기] [전공] 학위 리사이틀 프로그램
@@ -88,15 +87,14 @@ async function handler(req, res) {
   "items": [
     {
       "category": "항목명",
-      "status": "pass" | "warn" | "fail",
+      "status": "pass 또는 warn 또는 fail",
       "title": "검수 결과 한 줄 요약",
       "detail": "구체적 설명 (없으면 null)",
       "suggestion": "수정 제안 (없으면 null)"
     }
   ],
-  "summary": "총평 2~4문장"
+  "summary": "총평 2-4문장"
 }`;
-
   const userText = `리사이틀 종류: ${typeLabel}\nPDF 파일명: ${fileName}\n\n위 PDF의 프로그램을 가이드라인에 따라 검수하고 JSON으로만 응답하세요. PDF 페이지 수도 확인하여 1페이지 초과 여부를 반드시 검수하세요.`;
 
   try {
@@ -115,5 +113,41 @@ async function handler(req, res) {
           {
             role: 'user',
             content: [
-              module.exports = handler;
+              {
+                type: 'document',
+                source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 }
+              },
+              { type: 'text', text: userText }
+            ]
+          },
+          {
+            role: 'assistant',
+            content: '{'
+          }
+        ]
+      })
+    });
 
+    const data = await response.json();
+
+    if (data.error) {
+      return res.status(500).json({ error: data.error.message || 'Anthropic API 오류' });
+    }
+
+    const raw = '{' + data.content.map(i => i.text || '').join('');
+    let parsed;
+    try {
+      const clean = raw.replace(/```json|```/g, '').trim();
+      parsed = JSON.parse(clean);
+    } catch(e) {
+      return res.status(500).json({ error: '응답 파싱 오류: ' + raw.substring(0, 200) });
+    }
+
+    return res.status(200).json(parsed);
+
+  } catch(err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+module.exports = handler;
