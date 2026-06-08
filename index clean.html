@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>성악 학위리사이틀 프로그램 검수</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Serif+KR:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0f0e0c;
+    --surface: #191714;
+    --surface2: #211f1b;
+    --border: #2e2b25;
+    --gold: #c9a84c;
+    --gold-light: #e8cc80;
+    --cream: #f0ead8;
+    --cream-dim: #b8b0a0;
+    --pass: #6daa7f;
+    --warn: #c9a84c;
+    --fail: #c96d6d;
+    --text: #e8e2d4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Serif KR', 'Cormorant Garamond', Georgia, serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+
+  .container { max-width: 900px; margin: 0 auto; }
+
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(24px, 4vw, 38px);
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+
+  .header p { font-size: 13px; color: var(--cream-dim); font-weight: 300; }
+
+  /* 타입 선택 */
+  .type-selector { margin-bottom: 28px; }
+  .type-selector label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .type-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+  .type-btn {
+    padding: 8px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--cream-dim);
+    font-family: 'Noto Serif KR', serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+  .type-btn:hover { border-color: var(--gold); color: var(--cream); }
+  .type-btn.active { background: var(--gold); border-color: var(--gold); color: var(--bg); font-weight: 500; }
+
+  /* 업로드 영역 */
+  .upload-section { margin-bottom: 28px; }
+  .upload-section > label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 4px;
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    background: var(--surface);
+  }
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--gold);
+    background: var(--surface2);
+  }
+
+  .drop-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .drop-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+    display: block;
+    color: var(--cream-dim);
+  }
+
+  .drop-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+
+  .drop-sub { font-size: 12px; color: var(--cream-dim); }
+
+  /* 파일 선택 후 상태 */
+  .file-selected {
+    display: none;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-top: 12px;
+  }
+  .file-selected.active { display: flex; }
+
+  .file-icon { font-size: 24px; flex-shrink: 0; }
+
+  .file-info { flex: 1; min-width: 0; }
+  .file-name { font-size: 14px; color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-size { font-size: 12px; color: var(--cream-dim); margin-top: 2px; }
+
+  .file-remove {
+    background: none;
+    border: none;
+    color: var(--cream-dim);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px;
+    flex-shrink: 0;
+    transition: color 0.15s;
+  }
+  .file-remove:hover { color: var(--fail); }
+
+  /* 미리보기 */
+  .preview-section {
+    display: none;
+    margin-top: 12px;
+  }
+  .preview-section.active { display: block; }
+  .preview-label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--cream-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .preview-frame {
+    width: 100%;
+    height: 300px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: #fff;
+  }
+
+  /* 검수 버튼 */
+  .check-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--gold);
+    border: none;
+    color: var(--bg);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 2px;
+    margin-top: 12px;
+  }
+  .check-btn:hover { background: var(--gold-light); }
+  .check-btn:disabled { background: var(--surface2); color: var(--cream-dim); cursor: not-allowed; }
+
+  /* 로딩 */
+  .loading { display: none; text-align: center; padding: 48px 0; }
+  .loading.active { display: block; }
+  .spinner {
+    display: inline-block;
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { color: var(--cream-dim); font-size: 13px; letter-spacing: 0.1em; }
+
+  /* 결과 */
+  .results { display: none; }
+  .results.active { display: block; }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .results-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; color: var(--cream); }
+
+  .score-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+  .badge {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; padding: 4px 12px;
+    border-radius: 2px; border: 1px solid;
+  }
+  .badge.pass { color: var(--pass); border-color: var(--pass); background: rgba(109,170,127,0.08); }
+  .badge.warn { color: var(--warn); border-color: var(--warn); background: rgba(201,168,76,0.08); }
+  .badge.fail { color: var(--fail); border-color: var(--fail); background: rgba(201,109,109,0.08); }
+
+  /* 검수 항목 */
+  .check-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid transparent;
+    padding: 18px 20px;
+    margin-bottom: 8px;
+    border-radius: 2px;
+  }
+  .check-item.pass { border-left-color: var(--pass); }
+  .check-item.warn { border-left-color: var(--warn); }
+  .check-item.fail { border-left-color: var(--fail); }
+
+  .check-item-header { display: flex; align-items: flex-start; gap: 12px; }
+  .check-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .check-title { font-size: 14px; font-weight: 500; color: var(--cream); flex: 1; }
+  .check-category { font-size: 10px; letter-spacing: 0.15em; color: var(--cream-dim); text-transform: uppercase; flex-shrink: 0; margin-top: 2px; }
+
+  .check-detail { margin-top: 10px; margin-left: 28px; font-size: 13px; color: var(--cream-dim); line-height: 1.7; }
+  .check-suggestion {
+    margin-top: 8px; margin-left: 28px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-left: 2px solid var(--gold);
+    font-size: 13px; color: var(--cream-dim); line-height: 1.7;
+  }
+  .check-suggestion strong { color: var(--gold); font-weight: 500; }
+
+  /* 총평 */
+  .summary-box {
+    margin-top: 24px; padding: 20px 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+  }
+  .summary-box h3 { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 400; color: var(--gold); margin-bottom: 10px; letter-spacing: 0.05em; }
+  .summary-box p { font-size: 13px; color: var(--cream-dim); line-height: 1.8; }
+
+  .reset-btn {
+    margin-top: 20px; padding: 10px 24px;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--cream-dim);
+    font-family: 'Noto Serif KR', serif; font-size: 13px;
+    cursor: pointer; transition: all 0.2s; border-radius: 2px;
+  }
+  .reset-btn:hover { border-color: var(--gold); color: var(--cream); }
+
+  .error-box {
+    display: none; padding: 16px 20px;
+    background: rgba(201,109,109,0.1);
+    border: 1px solid var(--fail);
+    border-radius: 2px;
+    color: var(--fail); font-size: 13px;
+    margin-top: 12px;
+  }
+  .error-box.active { display: block; }
+
+
+  
+
+  @media (max-width: 600px) {
+    .results-header { flex-direction: column; }
+    .type-buttons { flex-direction: column; }
+    .type-btn { text-align: center; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-label">국립창원대학교 일반대학원</div>
+    <h1>성악 학위리사이틀<br>프로그램 검수</h1>
+    <p>PDF 업로드 · 가이드라인 항목별 자동 검수 · AI 수정 제안 포함</p>
+  </div>
+
+
+    <!-- 리사이틀 타입 -->
+  <div class="type-selector">
+    <label>리사이틀 종류</label>
+    <div class="type-buttons">
+      <button class="type-btn active" data-type="standard">석/박사 표준 리사이틀 (45–50분)</button>
+      <button class="type-btn" data-type="first">박사 1학기 리사이틀 (30분 미만)</button>
+      <button class="type-btn" data-type="lecture">렉쳐 리사이틀</button>
+    </div>
+  </div>
+
+  <!-- 업로드 -->
+  <div class="upload-section">
+    <label>프로그램 PDF 업로드</label>
+
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".pdf" />
+      <span class="drop-icon">📄</span>
+      <div class="drop-title">PDF 파일을 드래그하거나 클릭하여 선택</div>
+      <div class="drop-sub">학위리사이틀 프로그램 PDF · 최대 10MB</div>
+    </div>
+
+    <div class="file-selected" id="fileSelected">
+      <span class="file-icon">📋</span>
+      <div class="file-info">
+        <div class="file-name" id="fileName"></div>
+        <div class="file-size" id="fileSize"></div>
+      </div>
+      <button class="file-remove" id="fileRemove" title="파일 제거">✕</button>
+    </div>
+
+    <div class="preview-section" id="previewSection">
+      <div class="preview-label">미리보기</div>
+      <iframe class="preview-frame" id="previewFrame"></iframe>
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+    <button class="check-btn" id="checkBtn" onclick="runCheck()" disabled>PDF를 먼저 업로드해주세요</button>
+  </div>
+
+  <!-- 로딩 -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>PDF 분석 및 가이드라인 항목별 검수 중…</p>
+  </div>
+
+  <!-- 결과 -->
+  <div class="results" id="results">
+    <div class="results-header">
+      <h2>검수 결과</h2>
+      <div class="score-badges">
+        <div class="badge pass">✅ <span id="passCount">0</span>개 통과</div>
+        <div class="badge warn">⚠️ <span id="warnCount">0</span>개 주의</div>
+        <div class="badge fail">❌ <span id="failCount">0</span>개 오류</div>
+      </div>
+    </div>
+    <div id="checkList"></div>
+    <div class="summary-box">
+      <h3>총 평</h3>
+      <p id="summaryText"></p>
+    </div>
+    <button class="reset-btn" onclick="resetAll()">↩ 다시 검수하기</button>
+  </div>
+
+</div>
+
+<script>
+
+    let selectedType = 'standard';
+  let uploadedFileName = '';
+  let pdfBase64 = null;
+  let pdfObjectUrl = null;
+
+  const TYPE_LABELS = {
+    standard: '석/박사 표준 리사이틀 (45–50분)',
+    first: '박사 1학기 리사이틀 (30분 미만)',
+    lecture: '렉쳐 리사이틀'
+  };
+
+  // 타입 버튼
+  document.querySelectorAll('.type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedType = btn.dataset.type;
+    });
+  });
+
+  // 파일 입력
+  const fileInput = document.getElementById('fileInput');
+  const dropZone = document.getElementById('dropZone');
+
+  fileInput.addEventListener('change', e => {
+    if (e.target.files[0]) handleFile(e.target.files[0]);
+  });
+
+  // 드래그 앤 드롭
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type === 'application/pdf') handleFile(file);
+    else showError('PDF 파일만 업로드 가능합니다.');
+  });
+
+  // 파일 제거
+  document.getElementById('fileRemove').addEventListener('click', resetFile);
+
+  function handleFile(file) {
+    if (file.size > 10 * 1024 * 1024) { showError('파일 크기가 10MB를 초과합니다.'); return; }
+
+    uploadedFileName = file.name;
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
+    document.getElementById('fileSelected').classList.add('active');
+    document.getElementById('errorBox').classList.remove('active');
+
+    // PDF 미리보기
+    if (pdfObjectUrl) URL.revokeObjectURL(pdfObjectUrl);
+    pdfObjectUrl = URL.createObjectURL(file);
+    document.getElementById('previewFrame').src = pdfObjectUrl;
+    document.getElementById('previewSection').classList.add('active');
+
+    // base64 변환
+    const reader = new FileReader();
+    reader.onload = e => {
+      pdfBase64 = e.target.result.split(',')[1];
+      const btn = document.getElementById('checkBtn');
+      btn.disabled = false;
+      btn.textContent = '검 수 시 작';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function resetFile() {
+    pdfBase64 = null;
+    uploadedFileName = '';
+    fileInput.value = '';
+    document.getElementById('fileSelected').classList.remove('active');
+    document.getElementById('previewSection').classList.remove('active');
+    document.getElementById('previewFrame').src = '';
+    if (pdfObjectUrl) { URL.revokeObjectURL(pdfObjectUrl); pdfObjectUrl = null; }
+    const btn = document.getElementById('checkBtn');
+    btn.disabled = true;
+    btn.textContent = 'PDF를 먼저 업로드해주세요';
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    box.textContent = msg;
+    box.classList.add('active');
+  }
+
+  const SYSTEM_PROMPT = `당신은 성악 학위리사이틀 프로그램 전문 검수자입니다.
+첨부된 PDF에서 프로그램 내용을 읽고, 아래 가이드라인에 따라 항목별로 검수하세요.
+반드시 JSON 형식으로만 응답하세요. JSON 외 다른 텍스트나 마크다운 코드블록은 절대 포함하지 마세요.
+
+=== 가이드라인 ===
+
+1. 기본 서식
+- 가이드 문구 없이 실제 정보만 기재되어야 함
+
+2. 표지 정보
+- 파트 표기 필수: Soprano / Mezzo-Soprano / Tenor / Baritone / Bass-Baritone / Bass / Countertenor (이름 앞에 위치)
+- 지도교수 병기 필수 (전임교수명 교수 / 지도교수명 교수 형식)
+- Acc. 반주자명 표기 필수
+- 날짜·시간·장소 기재 필수
+
+3. 작곡가 표기
+- 원어 원문 full name 사용 (약어 사용 금지. 예: R.Schumann → Robert Schumann)
+- 생몰년 en dash(–) 사용 (하이픈(-) 금지)
+- 생존 작곡가: (b. 연도) 형식
+- 동일 작곡가 2곡 이상 시 첫 곡에만 생몰년 표기
+- 편곡 작품: arr. 편곡자명 표기
+
+4. 카탈로그 번호
+- Bach: BWV, Handel: HWV, Mozart: K., Schubert: D., Haydn: Hob., Vivaldi: RV 명시
+
+5. 아리아 표기
+- 제목 큰따옴표(" ") 사용
+- 레치타티보+아리아 병기 시 … (앞뒤 공백 포함) 사용
+- from 오페라명 표기 필수
+
+6. 연가곡 표기
+- 1곡 발췌: 곡명 / from 작품명, op.번호 표기
+- 2곡 이상 발췌: From 작품명 아래 개별 곡 번호·제목 나열
+- 전곡: 작품명 아래 전곡 나열
+- 독일어권: Nr. / 프랑스·이탈리아·영어권: No.
+- 악보상 원래 번호 병기 필수
+
+7. 언어별 대문자화
+- 독일어: 첫 단어 + 모든 명사 대문자
+- 이탈리아어: 첫 단어만 대문자
+- 프랑스어: 첫 단어 + 첫 명사까지 대문자
+- 영어: 주요 단어 대문자
+
+8. 소요시간 표기
+- 형식: 00'00" (분2자리 + 작은따옴표 + 초2자리 + 큰따옴표)
+- 각 곡 또는 블록별 표기 필수
+- 총 연주시간 합산 표기 필수
+
+9. 리사이틀 종류별 조건
+- 표준(45–50분): 총 연주시간 45분 이상 50분 미만
+- 박사 1학기(30분 미만): 총 연주시간 30분 미만, 3시대·3언어·연가곡 필수
+- 렉쳐: Lecture Recital 표기, 해설부/공연부 분리, 연주 30분 미만, 해설+연주 합산 45–50분, 단일 작곡가 권장
+
+10. 과정 표기 문구
+- 석사: "본 연주는 국립창원대학교 일반대학원 석사과정 이수를 위한 필수 연주 과정입니다. / This recital is a required concert in fulfillment part of MM program."
+- 박사: "본 연주는 국립창원대학교 일반대학원 박사과정 이수를 위한 필수 연주 과정입니다. / This recital is a required concert in fulfillment part of DMA program."
+
+11. 프로그램 마지막 곡
+- 관례상 아리아로 마무리
+
+12. 페이지 수
+- 프로그램은 반드시 1페이지 이내여야 함
+- PDF 페이지가 2장 이상이면 오류 (글자 크기·간격 조정 필요)
+- PDF 총 페이지 수 정보가 제공될 경우 이를 기준으로 판단
+
+13. 글꼴 수정 금지
+- 가이드 파일로 제시된 글꼴을 임의로 변경하면 안 됨
+- PDF에서 폰트 정보 확인이 어려우므로 항상 ⚠️ 주의 안내로 표시
+
+14. 파일명 형식
+- 형식: [과정] [이름] [연도-학기] [전공] 학위 리사이틀 프로그램
+- 예시: 석사 김하정 2026-1 성악 학위 리사이틀 프로그램
+- 파일명 정보가 제공될 경우 형식 준수 여부 검수
+
+=== 응답 형식 (JSON만) ===
+{
+  "items": [
+    {
+      "category": "항목명",
+      "status": "pass" | "warn" | "fail",
+      "title": "검수 결과 한 줄 요약",
+      "detail": "구체적 설명 (없으면 null)",
+      "suggestion": "수정 제안 (없으면 null)"
+    }
+  ],
+  "summary": "총평 2~4문장"
+}`;
+
+  async function runCheck() {
+    if (!pdfBase64) { showError('PDF 파일을 먼저 업로드해주세요.'); return; }
+
+    document.getElementById('errorBox').classList.remove('active');
+    document.getElementById('checkBtn').disabled = true;
+    document.getElementById('loading').classList.add('active');
+    document.getElementById('results').classList.remove('active');
+
+    try {
+      const response = await fetch('/api/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: selectedType,
+          typeLabel: TYPE_LABELS[selectedType],
+          fileName: uploadedFileName,
+          pdfBase64: pdfBase64,
+          systemPrompt: SYSTEM_PROMPT
+        })
+      });
+
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+      const parsed = data;
+
+      renderResults(parsed);
+
+    } catch(err) {
+      showError('검수 중 오류가 발생했습니다: ' + err.message);
+    } finally {
+      document.getElementById('loading').classList.remove('active');
+      document.getElementById('checkBtn').disabled = false;
+    }
+  }
+
+  function renderResults(data) {
+    const items = data.items || [];
+    let passCount = 0, warnCount = 0, failCount = 0;
+
+    const listEl = document.getElementById('checkList');
+    listEl.innerHTML = '';
+
+    items.forEach(item => {
+      if (item.status === 'pass') passCount++;
+      else if (item.status === 'warn') warnCount++;
+      else if (item.status === 'fail') failCount++;
+
+      const icon = item.status === 'pass' ? '✅' : item.status === 'warn' ? '⚠️' : '❌';
+
+      const div = document.createElement('div');
+      div.className = `check-item ${item.status}`;
+      div.innerHTML = `
+        <div class="check-item-header">
+          <span class="check-icon">${icon}</span>
+          <span class="check-title">${esc(item.title)}</span>
+          <span class="check-category">${esc(item.category)}</span>
+        </div>
+        ${item.detail ? `<div class="check-detail">${esc(item.detail)}</div>` : ''}
+        ${item.suggestion ? `<div class="check-suggestion"><strong>수정 제안</strong><br>${esc(item.suggestion)}</div>` : ''}
+      `;
+      listEl.appendChild(div);
+    });
+
+    document.getElementById('passCount').textContent = passCount;
+    document.getElementById('warnCount').textContent = warnCount;
+    document.getElementById('failCount').textContent = failCount;
+    document.getElementById('summaryText').textContent = data.summary || '';
+    document.getElementById('results').classList.add('active');
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function esc(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function resetAll() {
+    resetFile();
+    document.getElementById('results').classList.remove('active');
+    document.getElementById('errorBox').classList.remove('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
