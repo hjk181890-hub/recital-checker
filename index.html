@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>성악 학위리사이틀 프로그램 검수</title>
+<title>창원대 음악과 프로그램 검수</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Serif+KR:wght@300;400;500&display=swap');
   :root {
@@ -19,6 +19,13 @@
   .header-label { font-family: 'Cormorant Garamond', serif; font-size: 11px; letter-spacing: 0.3em; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; }
   .header h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(24px, 4vw, 38px); font-weight: 300; color: var(--cream); line-height: 1.3; margin-bottom: 8px; }
   .header p { font-size: 13px; color: var(--cream-dim); }
+  .mode-tabs { display: flex; gap: 0; margin-bottom: 32px; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .mode-tab { flex: 1; padding: 14px; background: var(--surface); color: var(--cream-dim); font-family: 'Noto Serif KR', serif; font-size: 13px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }
+  .mode-tab:first-child { border-right: 1px solid var(--border); }
+  .mode-tab.active { background: var(--gold); color: var(--bg); font-weight: 500; }
+  .mode-tab:hover:not(.active) { color: var(--cream); background: var(--surface2); }
+  .panel { display: none; }
+  .panel.active { display: block; }
   .type-selector { margin-bottom: 28px; }
   .type-selector label { display: block; font-size: 11px; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; margin-bottom: 12px; }
   .type-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -26,7 +33,7 @@
   .type-btn:hover { border-color: var(--gold); color: var(--cream); }
   .type-btn.active { background: var(--gold); border-color: var(--gold); color: var(--bg); font-weight: 500; }
   .upload-section { margin-bottom: 28px; }
-  .upload-section > label { display: block; font-size: 11px; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; margin-bottom: 12px; }
+  .upload-section > label, .text-section > label { display: block; font-size: 11px; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; margin-bottom: 12px; }
   .drop-zone { border: 2px dashed var(--border); border-radius: 4px; padding: 48px 24px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; background: var(--surface); }
   .drop-zone:hover, .drop-zone.drag-over { border-color: var(--gold); background: var(--surface2); }
   .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
@@ -44,6 +51,10 @@
   .preview-section.active { display: block; }
   .preview-label { font-size: 11px; letter-spacing: 0.15em; color: var(--cream-dim); text-transform: uppercase; margin-bottom: 8px; }
   .preview-frame { width: 100%; height: 300px; border: 1px solid var(--border); border-radius: 2px; background: #fff; }
+  .text-section { margin-bottom: 28px; }
+  .text-section textarea { width: 100%; height: 220px; background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: 'Noto Serif KR', Georgia, serif; font-size: 13px; line-height: 1.8; padding: 16px; resize: vertical; outline: none; transition: border-color 0.2s; border-radius: 2px; }
+  .text-section textarea:focus { border-color: var(--gold); }
+  .text-section textarea::placeholder { color: #4a4640; }
   .check-btn { width: 100%; padding: 16px; background: var(--gold); border: none; color: var(--bg); font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 500; letter-spacing: 0.15em; cursor: pointer; transition: all 0.2s; border-radius: 2px; margin-top: 12px; }
   .check-btn:hover { background: var(--gold-light); }
   .check-btn:disabled { background: var(--surface2); color: var(--cream-dim); cursor: not-allowed; }
@@ -72,58 +83,91 @@
   .check-detail { margin-top: 10px; margin-left: 28px; font-size: 13px; color: var(--cream-dim); line-height: 1.7; }
   .check-suggestion { margin-top: 8px; margin-left: 28px; padding: 10px 14px; background: var(--surface2); border-left: 2px solid var(--gold); font-size: 13px; color: var(--cream-dim); line-height: 1.7; }
   .check-suggestion strong { color: var(--gold); font-weight: 500; }
-  .summary-box { margin-top: 24px; padding: 20px 24px; background: var(--surface2); border: 1px solid var(--border); border-radius: 2px; }
+  .corrected-box { margin-top: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 2px; }
+  .corrected-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+  .corrected-header h3 { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 400; color: var(--gold); }
+  .copy-btn { padding: 6px 14px; background: transparent; border: 1px solid var(--border); color: var(--cream-dim); font-family: 'Noto Serif KR', serif; font-size: 12px; cursor: pointer; transition: all 0.2s; border-radius: 2px; }
+  .copy-btn:hover { border-color: var(--gold); color: var(--cream); }
+  .corrected-text { padding: 16px; font-size: 13px; color: var(--cream-dim); line-height: 1.9; white-space: pre-wrap; word-break: break-all; }
+  .summary-box { margin-top: 20px; padding: 20px 24px; background: var(--surface2); border: 1px solid var(--border); border-radius: 2px; }
   .summary-box h3 { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 400; color: var(--gold); margin-bottom: 10px; }
   .summary-box p { font-size: 13px; color: var(--cream-dim); line-height: 1.8; }
   .reset-btn { margin-top: 20px; padding: 10px 24px; background: transparent; border: 1px solid var(--border); color: var(--cream-dim); font-family: 'Noto Serif KR', serif; font-size: 13px; cursor: pointer; transition: all 0.2s; border-radius: 2px; }
   .reset-btn:hover { border-color: var(--gold); color: var(--cream); }
   .error-box { display: none; padding: 16px 20px; background: rgba(201,109,109,0.1); border: 1px solid var(--fail); border-radius: 2px; color: var(--fail); font-size: 13px; margin-top: 12px; word-break: break-all; }
   .error-box.active { display: block; }
-  @media (max-width: 600px) { .results-header { flex-direction: column; } .type-buttons { flex-direction: column; } .type-btn { text-align: center; } }
+  @media (max-width: 600px) { .results-header { flex-direction: column; } .type-buttons { flex-direction: column; } .type-btn { text-align: center; } .mode-tabs { flex-direction: column; } .mode-tab:first-child { border-right: none; border-bottom: 1px solid var(--border); } }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
-    <div class="header-label">국립창원대학교 일반대학원</div>
-    <h1>성악 학위리사이틀<br>프로그램 검수</h1>
-    <p>PDF 업로드 · 가이드라인 항목별 자동 검수 · AI 수정 제안 포함</p>
+    <div class="header-label">국립창원대학교 음악과</div>
+    <h1>음악과 프로그램 검수</h1>
+    <p>가이드라인 항목별 자동 검수 · AI 수정 제안 포함</p>
   </div>
-  <div class="type-selector">
-    <label>리사이틀 종류</label>
-    <div class="type-buttons">
-      <button class="type-btn active" data-type="standard">석/박사 표준 리사이틀 (45–50분)</button>
-      <button class="type-btn" data-type="first">박사 1학기 리사이틀 (30분 미만)</button>
-      <button class="type-btn" data-type="lecture">렉쳐 리사이틀</button>
-    </div>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" onclick="switchMode('recital')">🎓 학위리사이틀 검수</button>
+    <button class="mode-tab" onclick="switchMode('student')">📝 학부 곡목 검수</button>
   </div>
-  <div class="upload-section">
-    <label>프로그램 PDF 업로드</label>
-    <div class="drop-zone" id="dropZone">
-      <input type="file" id="fileInput" accept=".pdf" />
-      <span class="drop-icon">📄</span>
-      <div class="drop-title">PDF 파일을 드래그하거나 클릭하여 선택</div>
-      <div class="drop-sub">학위리사이틀 프로그램 PDF · 최대 10MB</div>
-    </div>
-    <div class="file-selected" id="fileSelected">
-      <span class="file-icon">📋</span>
-      <div class="file-info">
-        <div class="file-name" id="fileName"></div>
-        <div class="file-size" id="fileSize"></div>
+
+  <!-- 학위리사이틀 패널 -->
+  <div class="panel active" id="panel-recital">
+    <div class="type-selector">
+      <label>리사이틀 종류</label>
+      <div class="type-buttons">
+        <button class="type-btn active" data-type="standard">석/박사 표준 리사이틀 (45–50분)</button>
+        <button class="type-btn" data-type="first">박사 1학기 리사이틀 (30분 미만)</button>
+        <button class="type-btn" data-type="lecture">렉쳐 리사이틀</button>
       </div>
-      <button class="file-remove" id="fileRemove">✕</button>
     </div>
-    <div class="preview-section" id="previewSection">
-      <div class="preview-label">미리보기</div>
-      <iframe class="preview-frame" id="previewFrame"></iframe>
+    <div class="upload-section">
+      <label>프로그램 PDF 업로드</label>
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".pdf" />
+        <span class="drop-icon">📄</span>
+        <div class="drop-title">PDF 파일을 드래그하거나 클릭하여 선택</div>
+        <div class="drop-sub">학위리사이틀 프로그램 PDF · 최대 10MB</div>
+      </div>
+      <div class="file-selected" id="fileSelected">
+        <span class="file-icon">📋</span>
+        <div class="file-info">
+          <div class="file-name" id="fileName"></div>
+          <div class="file-size" id="fileSize"></div>
+        </div>
+        <button class="file-remove" id="fileRemove">✕</button>
+      </div>
+      <div class="preview-section" id="previewSection">
+        <div class="preview-label">미리보기</div>
+        <iframe class="preview-frame" id="previewFrame"></iframe>
+      </div>
+      <div class="error-box" id="errorBox1"></div>
+      <button class="check-btn" id="checkBtn1" onclick="runRecitalCheck()" disabled>PDF를 먼저 업로드해주세요</button>
     </div>
-    <div class="error-box" id="errorBox"></div>
-    <button class="check-btn" id="checkBtn" onclick="runCheck()" disabled>PDF를 먼저 업로드해주세요</button>
   </div>
+
+  <!-- 학부 곡목 패널 -->
+  <div class="panel" id="panel-student">
+    <div class="text-section">
+      <label>곡목 텍스트 붙여넣기</label>
+      <textarea id="textInput" placeholder="예시)
+3학년 / 20210001 / 성악 / Soprano / 김하정 /
+Franz Schubert, Ave Maria /
+Giuseppe Verdi, E strano from La traviata /
+Acc. 이민준 / 010-0000-0000"></textarea>
+      <div class="error-box" id="errorBox2"></div>
+      <button class="check-btn" id="checkBtn2" onclick="runTextCheck()">검 수 시 작</button>
+    </div>
+  </div>
+
+  <!-- 로딩 -->
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <p>PDF 분석 및 가이드라인 항목별 검수 중…</p>
+    <p>검수 중… 약 2–3분 소요됩니다. 페이지를 벗어나지 마세요.</p>
   </div>
+
+  <!-- 결과 -->
   <div class="results" id="results">
     <div class="results-header">
       <h2>검수 결과</h2>
@@ -134,7 +178,17 @@
       </div>
     </div>
     <div id="checkList"></div>
-    <div class="summary-box"><h3>총 평</h3><p id="summaryText"></p></div>
+    <div class="corrected-box" id="correctedBox" style="display:none;">
+      <div class="corrected-header">
+        <h3>수정된 곡목</h3>
+        <button class="copy-btn" onclick="copyText()">복사</button>
+      </div>
+      <div class="corrected-text" id="correctedText"></div>
+    </div>
+    <div class="summary-box">
+      <h3>총 평</h3>
+      <p id="summaryText"></p>
+    </div>
     <button class="reset-btn" onclick="resetAll()">↩ 다시 검수하기</button>
   </div>
 </div>
@@ -143,12 +197,25 @@
   let uploadedFileName = '';
   let pdfBase64 = null;
   let pdfObjectUrl = null;
+  let currentMode = 'recital';
 
   const TYPE_LABELS = {
     standard: '석/박사 표준 리사이틀 (45–50분)',
     first: '박사 1학기 리사이틀 (30분 미만)',
     lecture: '렉쳐 리사이틀'
   };
+
+  function switchMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.mode-tab').forEach((t, i) => {
+      t.classList.toggle('active', (i === 0 && mode === 'recital') || (i === 1 && mode === 'student'));
+    });
+    document.getElementById('panel-recital').classList.toggle('active', mode === 'recital');
+    document.getElementById('panel-student').classList.toggle('active', mode === 'student');
+    document.getElementById('results').classList.remove('active');
+    document.getElementById('errorBox1').classList.remove('active');
+    document.getElementById('errorBox2').classList.remove('active');
+  }
 
   document.querySelectorAll('.type-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -172,18 +239,18 @@
     dropZone.classList.remove('drag-over');
     const file = e.dataTransfer.files[0];
     if (file && file.type === 'application/pdf') handleFile(file);
-    else showError('PDF 파일만 업로드 가능합니다.');
+    else showError('errorBox1', 'PDF 파일만 업로드 가능합니다.');
   });
 
   document.getElementById('fileRemove').addEventListener('click', resetFile);
 
   function handleFile(file) {
-    if (file.size > 10 * 1024 * 1024) { showError('파일 크기가 10MB를 초과합니다.'); return; }
+    if (file.size > 10 * 1024 * 1024) { showError('errorBox1', '파일 크기가 10MB를 초과합니다.'); return; }
     uploadedFileName = file.name;
     document.getElementById('fileName').textContent = file.name;
     document.getElementById('fileSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
     document.getElementById('fileSelected').classList.add('active');
-    document.getElementById('errorBox').classList.remove('active');
+    document.getElementById('errorBox1').classList.remove('active');
     if (pdfObjectUrl) URL.revokeObjectURL(pdfObjectUrl);
     pdfObjectUrl = URL.createObjectURL(file);
     document.getElementById('previewFrame').src = pdfObjectUrl;
@@ -191,7 +258,7 @@
     const reader = new FileReader();
     reader.onload = e => {
       pdfBase64 = e.target.result.split(',')[1];
-      const btn = document.getElementById('checkBtn');
+      const btn = document.getElementById('checkBtn1');
       btn.disabled = false;
       btn.textContent = '검 수 시 작';
     };
@@ -206,24 +273,23 @@
     document.getElementById('previewSection').classList.remove('active');
     document.getElementById('previewFrame').src = '';
     if (pdfObjectUrl) { URL.revokeObjectURL(pdfObjectUrl); pdfObjectUrl = null; }
-    const btn = document.getElementById('checkBtn');
+    const btn = document.getElementById('checkBtn1');
     btn.disabled = true;
     btn.textContent = 'PDF를 먼저 업로드해주세요';
   }
 
-  function showError(msg) {
-    const box = document.getElementById('errorBox');
+  function showError(boxId, msg) {
+    const box = document.getElementById(boxId);
     box.textContent = msg;
     box.classList.add('active');
   }
 
-  async function runCheck() {
-    if (!pdfBase64) { showError('PDF 파일을 먼저 업로드해주세요.'); return; }
-    document.getElementById('errorBox').classList.remove('active');
-    document.getElementById('checkBtn').disabled = true;
+  async function runRecitalCheck() {
+    if (!pdfBase64) { showError('errorBox1', 'PDF 파일을 먼저 업로드해주세요.'); return; }
+    document.getElementById('errorBox1').classList.remove('active');
+    document.getElementById('checkBtn1').disabled = true;
     document.getElementById('loading').classList.add('active');
     document.getElementById('results').classList.remove('active');
-
     try {
       let response;
       try {
@@ -239,24 +305,54 @@
       } catch(fetchErr) {
         throw new Error('fetch 실패: ' + fetchErr.name + ' - ' + fetchErr.message);
       }
-
       if (!response.ok) {
         const errText = await response.text();
         throw new Error('HTTP ' + response.status + ': ' + errText.substring(0, 300));
       }
-
       const data = await response.json();
       if (data.error) throw new Error(data.error);
-      renderResults(data);
-
+      renderResults(data, false);
     } catch(err) {
-      showError('오류: ' + err.message);
+      showError('errorBox1', '오류: ' + err.message);
     } finally {
       document.getElementById('loading').classList.remove('active');
-      document.getElementById('checkBtn').disabled = false;
+      document.getElementById('checkBtn1').disabled = false;
     }
   }
-  function renderResults(data) {
+
+  async function runTextCheck() {
+    const text = document.getElementById('textInput').value.trim();
+    if (!text) { showError('errorBox2', '곡목 텍스트를 입력해주세요.'); return; }
+    document.getElementById('errorBox2').classList.remove('active');
+    document.getElementById('checkBtn2').disabled = true;
+    document.getElementById('loading').classList.add('active');
+    document.getElementById('results').classList.remove('active');
+    try {
+      let response;
+      try {
+        response = await fetch('/api/checkText', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ inputText: text })
+        });
+      } catch(fetchErr) {
+        throw new Error('fetch 실패: ' + fetchErr.name + ' - ' + fetchErr.message);
+      }
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error('HTTP ' + response.status + ': ' + errText.substring(0, 300));
+      }
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+      renderResults(data, true);
+    } catch(err) {
+      showError('errorBox2', '오류: ' + err.message);
+    } finally {
+      document.getElementById('loading').classList.remove('active');
+      document.getElementById('checkBtn2').disabled = false;
+    }
+  }
+  function renderResults(data, showCorrected) {
     const items = data.items || [];
     let passCount = 0, warnCount = 0, failCount = 0;
     const listEl = document.getElementById('checkList');
@@ -282,6 +378,13 @@
     document.getElementById('warnCount').textContent = warnCount;
     document.getElementById('failCount').textContent = failCount;
     document.getElementById('summaryText').textContent = data.summary || '';
+    const correctedBox = document.getElementById('correctedBox');
+    if (showCorrected && data.corrected) {
+      document.getElementById('correctedText').textContent = data.corrected;
+      correctedBox.style.display = 'block';
+    } else {
+      correctedBox.style.display = 'none';
+    }
     document.getElementById('results').classList.add('active');
     document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -291,10 +394,21 @@
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
+  function copyText() {
+    const text = document.getElementById('correctedText').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = '복사됨 ✓';
+      setTimeout(() => btn.textContent = '복사', 2000);
+    });
+  }
+
   function resetAll() {
-    resetFile();
+    if (currentMode === 'recital') resetFile();
+    else document.getElementById('textInput').value = '';
     document.getElementById('results').classList.remove('active');
-    document.getElementById('errorBox').classList.remove('active');
+    document.getElementById('errorBox1').classList.remove('active');
+    document.getElementById('errorBox2').classList.remove('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 </script>
