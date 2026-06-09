@@ -11,7 +11,7 @@ async function handler(req, res) {
 
 === 형식 가이드라인 ===
 1. 기본 서식: 가이드 문구 없이 실제 정보만 기재. 국립창원대학교 공식 마크(워터마크) 존재 시 정상으로 처리하고 삭제 권고 금지
-2. 표지: 파트(Soprano/Mezzo-Soprano/Tenor/Baritone/Bass-Baritone/Bass/Countertenor) 이름 앞 표기 필수, 지도교수 표기 필수(전임교수명 교수/지도교수명 교수 형식 또는 괄호형식 모두 허용, 지도교수만 있는 경우도 허용), Acc.반주자명 필수, 날짜·시간·장소 필수. 학기 표기는 반드시 '박사과정 N학기' 형식이어야 하며 학기 표기는 반드시 '박사과정 N학기' 형식이어야 함. PDF에서 공백·줄바꿈으로 인해 '박사과정 학기 N'처럼 읽힐 수 있으나 실제 표기가 '박사과정 4학기'인 경우 오류로 처리하지 말 것. 오류로 판단하기 전 PDF 원문을 재확인할 것
+2. 표지: 파트(Soprano/Mezzo-Soprano/Tenor/Baritone/Bass-Baritone/Bass/Countertenor) 이름 앞 표기 필수, 지도교수 표기 필수(전임교수명 교수/지도교수명 교수 형식 또는 괄호형식 모두 허용, 지도교수만 있는 경우도 허용), Acc.반주자명 필수, 날짜·시간·장소 필수.
 3. 작곡가 표기: 원어 full name 필수(약어 금지. 예: R.Schumann→Robert Schumann, W.A.Mozart→Wolfgang Amadeus Mozart, P.I.Tchaikovsky→Pyotr Ilyich Tchaikovsky), 생몰년 en dash(–) 사용(하이픈(-) 금지), 생존작곡가 (b.연도) 형식, 동일작곡가 2곡이상 첫곡만 생몰년, 편곡시 arr.편곡자명
 4. 카탈로그: Bach=BWV, Handel=HWV, Mozart=K., Schubert=D., Haydn=Hob., Vivaldi=RV
 5. 아리아: 큰따옴표 사용, 레치타티보+아리아 병기시 ... 앞뒤공백 포함, from 오페라명 필수
