@@ -2,11 +2,12 @@
   "version": 2,
   "builds": [
     { "src": "index.html", "use": "@vercel/static" },
-    { "src": "api/check.js", "use": "@vercel/node" }
+    { "src": "api/check.js", "use": "@vercel/node" },
+    { "src": "api/checkText.js", "use": "@vercel/node" }
   ],
   "routes": [
     { "src": "/api/check", "dest": "/api/check.js" },
+    { "src": "/api/checkText", "dest": "/api/checkText.js" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
-
