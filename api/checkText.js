@@ -12,7 +12,7 @@ async function handler(req, res) {
 
 === 가이드라인 ===
 
-1. 제출 형식: 학년 / 학번 / 전공 / 악기명칭 또는 성악파트 / 이름 / 작곡가 / 곡명 / Acc. 반주자 / 연락처 순서 준수
+1. 제출 형식: 학년 / 학번 / 전공 / 악기명칭 또는 성악파트 / 이름 / 작곡가 / 곡명 / Acc. 반주자 / 연락처 순서 준수 단, 기악 전공(Piano, Violin, Viola, Violoncello, Contrabass, Flute, Oboe, Clarinet, Bassoon, Horn, Trumpet, Trombone, Tuba, Harp, Percussion, Guitar 등)의 경우 악기명칭이 전공명을 대신하므로 별도 전공 항목 없이 악기명칭만 표기하며, 이를 누락으로 처리하지 말 것. 수정된 곡목에도 전공명을 임의로 추가하지 말 것. 예) 1학년 / 20262822 / Violin / 임채운 / ...
 
 2. 성악 파트 표기: Soprano / Mezzo-Soprano / Tenor / Baritone / Bass-Baritone / Bass / Countertenor 중 하나. 하이픈 필수(Mezzo-Soprano), Bass-Baritone 구분
 
