@@ -1,13 +1,13 @@
 {
   "version": 2,
   "builds": [
-    { "src": "index.html", "use": "@vercel/static" },
     { "src": "api/check.js", "use": "@vercel/node" },
-    { "src": "api/checkText.js", "use": "@vercel/node" }
+    { "src": "api/checkText.js", "use": "@vercel/node" },
+    { "src": "index.html", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/api/check", "dest": "/api/check.js" },
-    { "src": "/api/checkText", "dest": "/api/checkText.js" },
+    { "src": "/api/check", "dest": "/api/check.js", "methods": ["POST"] },
+    { "src": "/api/checkText", "dest": "/api/checkText.js", "methods": ["POST"] },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
