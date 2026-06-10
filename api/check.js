@@ -67,7 +67,7 @@ async function handler(req, res) {
 19. 연가곡·작품 소제목 일치 여부
 20. 가이드라인 조건 종합 판단
 
-응답형식JSON만: {"items":[{"category":"항목명","status":"pass또는warn또는fail","title":"한줄요약","detail":"설명또는null","suggestion":"수정제안또는null"}],"summary":"총평2-4문장"}`;
+응답형식JSON만: {"items":[{"category":"항목명","status":"pass또는warn또는fail","title":"한줄요약","detail":"설명또는null","suggestion":"수정제안또는null"}],"summary":"총평: 오류 항목을 1. 2. 3. 형식으로 번호 나열. 마지막에 한 줄 종합 평가"}`;
   const userText = `${fontReport}\n리사이틀 종류: ${typeLabel}\nPDF 파일명: ${fileName}\n\n위 PDF와 자동 추출 정보를 가이드라인에 따라 검수하고 JSON으로만 응답하세요. 음악적 정보는 웹검색으로 확인하세요.`;
 
   try {
