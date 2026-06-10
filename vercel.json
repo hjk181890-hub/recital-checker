@@ -3,11 +3,13 @@
   "builds": [
     { "src": "api/check.js", "use": "@vercel/node" },
     { "src": "api/checkText.js", "use": "@vercel/node" },
+    { "src": "api/extract.py", "use": "@vercel/python" },
     { "src": "index.html", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/api/check", "dest": "/api/check.js", "methods": ["POST"] },
     { "src": "/api/checkText", "dest": "/api/checkText.js", "methods": ["POST"] },
+    { "src": "/api/extract", "dest": "/api/extract.py", "methods": ["POST"] },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
